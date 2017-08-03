@@ -25,6 +25,7 @@ setup(
     entry_points={
         "dtool.dataset": [
             "summary=dtool_info.dataset:summary",
+            "verify=dtool_info.dataset:verify",
         ],
     },
     download_url="{}/tarball/{}".format(url, version),

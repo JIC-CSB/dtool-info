@@ -1,5 +1,7 @@
 """dataset command line module."""
 
+import os
+
 import click
 
 import dtoolcore
@@ -33,3 +35,38 @@ def summary(dataset_path):
         pygments.lexers.JsonLexer(),
         pygments.formatters.TerminalFormatter())
     click.secho(colorful_json, nl=False)
+
+
+@click.command()
+@dataset_path_argument
+def verify(dataset_path):
+    """Verify the integrity of the dataset."""
+    all_good = True
+    dataset = dtoolcore.DataSet.from_path(dataset_path)
+    manifest_data_paths = []
+    for i in dataset.identifiers:
+        fpath = dataset.abspath_from_identifier(i)
+        manifest_data_paths.append(fpath)
+        if not os.path.isfile(fpath):
+            click.secho("Missing file: {}".format(fpath), fg="red")
+            all_good = False
+            continue
+        calculated_hash = dataset._structural_metadata.hash_generator(fpath)
+        if i != calculated_hash:
+            click.secho("Altered file: {}".format(fpath), fg="red")
+            all_good = False
+            continue
+
+    abs_data_directory = os.path.join(dataset_path, dataset.data_directory)
+    existing_data_paths = []
+    for root, dirs, files in os.walk(abs_data_directory):
+        for f in files:
+            fpath = os.path.abspath(os.path.join(root, f))
+            existing_data_paths.append(fpath)
+    new_data_fpaths = set(existing_data_paths) - set(manifest_data_paths)
+    for fpath in new_data_fpaths:
+        all_good = False
+        click.secho("Unknown file: {}".format(fpath), fg="yellow")
+
+    if all_good:
+        click.secho("All good :)".format(fpath), fg="green")
