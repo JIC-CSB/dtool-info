@@ -20,7 +20,13 @@ setup(
         "Click",
         "dtoolcore",
         "dtool-cli",
+        "pygments",
     ],
+    entry_points={
+        "dtool.dataset": [
+            "summary=dtool_info.dataset:summary",
+        ],
+    },
     download_url="{}/tarball/{}".format(url, version),
     license="MIT"
 )

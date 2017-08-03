@@ -6,6 +6,8 @@ import tempfile
 
 import pytest
 
+import dtoolcore
+
 _HERE = os.path.dirname(__file__)
 
 
