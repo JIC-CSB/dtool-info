@@ -1,6 +1,7 @@
 """Test the dtool dataset verify command."""
 
 import os
+import shutil
 
 from click.testing import CliRunner
 
@@ -46,3 +47,23 @@ def test_dataset_verify(dataset_fixture):  # NOQA
     result = runner.invoke(verify, [dataset_fixture])
     assert result.exit_code == 0
     assert result.output.strip() == "Altered file: {}".format(fpath)
+
+
+def test_dataset_verify_with_two_identical_files(dataset_fixture):
+    runner = CliRunner()
+
+    from dtool_info.dataset import verify
+    import dtoolcore
+
+    # Create a duplicate file and update manifest.
+    dataset = dtoolcore.DataSet.from_path(dataset_fixture)
+    duplicate_fpath = os.path.join(
+        dataset._abs_path, dataset.data_directory, "duplicate.txt")
+    original_fpath = dataset.abspath_from_identifier(dataset.identifiers[0])
+    shutil.copy(original_fpath, duplicate_fpath)
+    dataset.update_manifest()
+
+    result = runner.invoke(verify, [dataset_fixture])
+    assert result.exit_code == 0
+
+    assert result.output.strip() == "All good :)"

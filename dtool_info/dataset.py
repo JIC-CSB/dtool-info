@@ -44,15 +44,17 @@ def verify(dataset_path):
     all_good = True
     dataset = dtoolcore.DataSet.from_path(dataset_path)
     manifest_data_paths = []
-    for i in dataset.identifiers:
-        fpath = dataset.abspath_from_identifier(i)
+    for item in dataset.manifest["file_list"]:
+        fpath = os.path.join(
+            dataset._abs_path, dataset.data_directory, item["path"])
+
         manifest_data_paths.append(fpath)
         if not os.path.isfile(fpath):
             click.secho("Missing file: {}".format(fpath), fg="red")
             all_good = False
             continue
         calculated_hash = dataset._structural_metadata.hash_generator(fpath)
-        if i != calculated_hash:
+        if item["hash"] != calculated_hash:
             click.secho("Altered file: {}".format(fpath), fg="red")
             all_good = False
             continue
