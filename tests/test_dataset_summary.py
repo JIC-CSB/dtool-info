@@ -17,7 +17,7 @@ def test_dataset_summary(dataset_fixture):  # NOQA
 
     summary = json.loads(result.output)
     expected = {
-        "Name": "test",
+        "Name": "test_dataset",
         "Creator": getpass.getuser(),
         "Number of files": 2,
         "Total size": 10,

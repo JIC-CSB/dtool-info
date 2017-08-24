@@ -47,18 +47,20 @@ def local_tmp_dir_fixture(request):
 def dataset_fixture(request):
     d = tempfile.mkdtemp()
 
-    dataset = dtoolcore.DataSet("test", "data")
-    dataset.persist_to_path(d)
+    dest_path = os.path.join(d, "test")
+    proto_dataset = dtoolcore.ProtoDataSet.create(
+        uri=dest_path, name="test_dataset")
 
     for s in ["hello", "world"]:
         fname = s + ".txt"
-        fpath = os.path.join(d, "data", fname)
+        fpath = os.path.join(d,  fname)
         with open(fpath, "w") as fh:
             fh.write(s)
+        proto_dataset.put_item(fpath, fname)
 
-    dataset.update_manifest()
+    proto_dataset.freeze()
 
     @request.addfinalizer
     def teardown():
         shutil.rmtree(d)
-    return d
+    return dest_path

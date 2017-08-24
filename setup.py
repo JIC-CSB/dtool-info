@@ -18,7 +18,7 @@ setup(
     url=url,
     install_requires=[
         "Click",
-        "dtoolcore",
+        "dtoolcore>=2.0.0",
         "dtool-cli",
         "pygments",
     ],
